@@ -32,34 +32,29 @@ export module Contains {
         const payload = client.payload(data);
         return client.deploy(payload);
     }
-    export class Contract {
-        private client: Provider;
-        public address: string;
-        constructor(client: Provider, address: string) {
-            this.client = client;
-            this.address = address;
-        }
-        contains(_list: string[], _value: string): Promise<[
-            boolean
-        ]> {
-            const data = encode(this.client).contains[0](_list, _value);
-            return call<[
+    export const contract = (client: Provider, address: string) => ({ functions: { contains(_list: string[], _value: string): Promise<[
                 boolean
-            ]>(this.client, this.address, data, true, (data: Uint8Array | undefined) => {
-                return decode(this.client, data).contains[0]();
-            });
-        }
-        contains_1(_list: number[], _value: number): Promise<[
-            boolean
-        ]> {
-            const data = encode(this.client).contains[1](_list, _value);
-            return call<[
+            ]> {
+                const data = encode(client).contains[0](_list, _value);
+                return call<[
+                    boolean
+                ]>(client, address, data, true, (data: Uint8Array | undefined) => {
+                    return decode(client, data).contains[0]();
+                });
+            }, contains_1(_list: number[], _value: number): Promise<[
                 boolean
-            ]>(this.client, this.address, data, true, (data: Uint8Array | undefined) => {
-                return decode(this.client, data).contains[1]();
-            });
-        }
-    }
+            ]> {
+                const data = encode(client).contains[1](_list, _value);
+                return call<[
+                    boolean
+                ]>(client, address, data, true, (data: Uint8Array | undefined) => {
+                    return decode(client, data).contains[1]();
+                });
+            } } as const, listeners: {} as const } as const);
+    type EventRegistry = typeof events;
+    export type Event = keyof EventRegistry;
+    export type TaggedPayload<T extends Event> = ReturnType<EventRegistry[T]["tagged"]>;
+    const events = {} as const;
     export const encode = (client: Provider) => { const codec = client.contractCodec(abi); return {
         contains: [(_list: string[], _value: string) => { return codec.encodeFunctionData("3DA80D66", _list, _value); }, (_list: number[], _value: number) => { return codec.encodeFunctionData("B32B8E2C", _list, _value); }] as const
     }; };

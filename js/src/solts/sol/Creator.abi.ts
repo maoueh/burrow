@@ -32,24 +32,20 @@ export module Creator {
         const payload = client.payload(data);
         return client.deploy(payload);
     }
-    export class Contract {
-        private client: Provider;
-        public address: string;
-        constructor(client: Provider, address: string) {
-            this.client = client;
-            this.address = address;
-        }
-        create(_name: string): Promise<{
-            proxy: string;
-        }> {
-            const data = encode(this.client).create(_name);
-            return call<{
+    export const contract = (client: Provider, address: string) => ({ functions: { create(_name: string): Promise<{
                 proxy: string;
-            }>(this.client, this.address, data, false, (data: Uint8Array | undefined) => {
-                return decode(this.client, data).create();
-            });
-        }
-    }
+            }> {
+                const data = encode(client).create(_name);
+                return call<{
+                    proxy: string;
+                }>(client, address, data, false, (data: Uint8Array | undefined) => {
+                    return decode(client, data).create();
+                });
+            } } as const, listeners: {} as const } as const);
+    type EventRegistry = typeof events;
+    export type Event = keyof EventRegistry;
+    export type TaggedPayload<T extends Event> = ReturnType<EventRegistry[T]["tagged"]>;
+    const events = {} as const;
     export const encode = (client: Provider) => { const codec = client.contractCodec(abi); return {
         create: (_name: string) => { return codec.encodeFunctionData("B6A46B3B", _name); }
     }; };
@@ -72,24 +68,20 @@ export module Proxy {
         const payload = client.payload(data);
         return client.deploy(payload);
     }
-    export class Contract {
-        private client: Provider;
-        public address: string;
-        constructor(client: Provider, address: string) {
-            this.client = client;
-            this.address = address;
-        }
-        get(): Promise<[
-            string
-        ]> {
-            const data = encode(this.client).get();
-            return call<[
+    export const contract = (client: Provider, address: string) => ({ functions: { get(): Promise<[
                 string
-            ]>(this.client, this.address, data, true, (data: Uint8Array | undefined) => {
-                return decode(this.client, data).get();
-            });
-        }
-    }
+            ]> {
+                const data = encode(client).get();
+                return call<[
+                    string
+                ]>(client, address, data, true, (data: Uint8Array | undefined) => {
+                    return decode(client, data).get();
+                });
+            } } as const, listeners: {} as const } as const);
+    type EventRegistry = typeof events;
+    export type Event = keyof EventRegistry;
+    export type TaggedPayload<T extends Event> = ReturnType<EventRegistry[T]["tagged"]>;
+    const events = {} as const;
     export const encode = (client: Provider) => { const codec = client.contractCodec(abi); return {
         get: () => { return codec.encodeFunctionData("6D4CE63C"); }
     }; };

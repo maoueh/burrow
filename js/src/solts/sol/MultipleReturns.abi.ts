@@ -32,28 +32,24 @@ export module Multiple {
         const payload = client.payload(data);
         return client.deploy(payload);
     }
-    export class Contract {
-        private client: Provider;
-        public address: string;
-        constructor(client: Provider, address: string) {
-            this.client = client;
-            this.address = address;
-        }
-        get(): Promise<[
-            number,
-            number,
-            number
-        ]> {
-            const data = encode(this.client).get();
-            return call<[
+    export const contract = (client: Provider, address: string) => ({ functions: { get(): Promise<[
                 number,
                 number,
                 number
-            ]>(this.client, this.address, data, true, (data: Uint8Array | undefined) => {
-                return decode(this.client, data).get();
-            });
-        }
-    }
+            ]> {
+                const data = encode(client).get();
+                return call<[
+                    number,
+                    number,
+                    number
+                ]>(client, address, data, true, (data: Uint8Array | undefined) => {
+                    return decode(client, data).get();
+                });
+            } } as const, listeners: {} as const } as const);
+    type EventRegistry = typeof events;
+    export type Event = keyof EventRegistry;
+    export type TaggedPayload<T extends Event> = ReturnType<EventRegistry[T]["tagged"]>;
+    const events = {} as const;
     export const encode = (client: Provider) => { const codec = client.contractCodec(abi); return {
         get: () => { return codec.encodeFunctionData("6D4CE63C"); }
     }; };

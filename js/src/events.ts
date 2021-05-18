@@ -47,11 +47,13 @@ export class Events {
   }
 
   listen(range: BlockRange, address: string, signature: string, callback: EventCallback): EventStream {
-    const filter = "EventType = 'LogEvent' AND Address = '" + address.toUpperCase() + "'";
-    // +
-    // " AND Log0 = '" +
-    // signature.toUpperCase() +
-    // "'";
+    const filter =
+      "EventType = 'LogEvent' AND Address = '" +
+      address.toUpperCase() +
+      "'" +
+      " AND Log0 = '" +
+      signature.toUpperCase() +
+      "'";
     return this.stream(range, filter, callback);
   }
 }

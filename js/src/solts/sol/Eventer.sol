@@ -1,6 +1,12 @@
 pragma solidity >=0.0.0;
 
-contract Contract {
+contract Eventer {
+    event MonoRampage(
+        int indexed timestamp,
+        string place,
+        string postalAddress
+    );
+
     event Init(
         bytes32 indexed eventId,
         bytes32 indexed intervalId,

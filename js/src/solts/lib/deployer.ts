@@ -15,14 +15,16 @@ import {
   prop,
   StringType,
 } from './syntax';
+import undefinedError = Mocha.utils.undefinedError;
+
+export const deployName = factory.createIdentifier('deploy');
+export const deployContractName = factory.createIdentifier('deployContract');
 
 // Variable names
 const payloadName = factory.createIdentifier('payload');
 const linkedBytecodeName = factory.createIdentifier('linkedBytecode');
 const dataName = factory.createIdentifier('data');
 const clientName = factory.createIdentifier('client');
-
-export const DeployName = factory.createIdentifier('deploy');
 
 export function generateDeployFunction(
   abi: ABI.Func | undefined,
@@ -31,7 +33,6 @@ export function generateDeployFunction(
   provider: Provider,
   abiName: ts.Identifier,
 ): FunctionDeclaration {
-  const parameters = abi ? abi.inputs?.map((input) => createParameter(input.name, getRealType(input.type))) ?? [] : [];
   const output = factory.createExpressionWithTypeArguments(PromiseType, [StringType]);
 
   const statements: ts.Statement[] = [];
@@ -73,14 +74,42 @@ export function generateDeployFunction(
     undefined,
     [ExportToken],
     undefined,
-    DeployName,
+    deployName,
     undefined,
-    [
-      createParameter(clientName, provider.type()),
-      ...links.map((link) => createParameter(factory.createIdentifier(tokenizeString(link)), StringType)),
-      ...parameters,
-    ],
+    deployParameters(abi, bytecodeName, links, provider),
     output,
     factory.createBlock(statements, true),
   );
+}
+
+export function generateDeployContractFunction(
+  abi: ABI.Func | undefined,
+  bytecodeName: ts.Identifier,
+  links: string[],
+  provider: Provider,
+) {
+  return factory.createFunctionDeclaration(
+    undefined,
+    [ExportToken],
+    undefined,
+    deployContractName,
+    undefined,
+    deployParameters(abi, bytecodeName, links, provider),
+    undefined,
+    undefined,
+  );
+}
+
+function deployParameters(
+  abi: ABI.Func | undefined,
+  bytecodeName: ts.Identifier,
+  links: string[],
+  provider: Provider,
+): ts.ParameterDeclaration[] {
+  const parameters = abi ? abi.inputs?.map((input) => createParameter(input.name, getRealType(input.type))) ?? [] : [];
+  return [
+    createParameter(clientName, provider.type()),
+    ...links.map((link) => createParameter(factory.createIdentifier(tokenizeString(link)), StringType)),
+    ...parameters,
+  ];
 }

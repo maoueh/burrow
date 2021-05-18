@@ -1,7 +1,7 @@
 import ts, { factory } from 'typescript';
 import { ABI } from './lib/abi';
 import { createCallerFunction } from './lib/caller';
-import { generateContractClass } from './lib/contract';
+import { declareEvents, eventTypes, generateContractObject } from './lib/contract';
 import { generateDecodeObject } from './lib/decoder';
 import { generateDeployFunction } from './lib/deployer';
 import { generateEncodeObject } from './lib/encoder';
@@ -53,7 +53,9 @@ export function newFile(contracts: Compiled[], burrowImportPath: string): ts.Nod
       const statements = [
         declareConstant(abiName, factory.createStringLiteral(JSON.stringify(contract.abi), true), true),
         ...deployFunction,
-        generateContractClass(methods, provider),
+        generateContractObject(methods, provider),
+        ...eventTypes(),
+        declareEvents(methods),
         generateEncodeObject(methods, provider, abiName),
         generateDecodeObject(methods, provider, abiName),
       ];

@@ -22,6 +22,7 @@ export const LogEvent = factory.createIdentifier('LogEvent');
 export const ContractCodec = factory.createIdentifier('ContractCodec');
 export const Result = factory.createIdentifier('Result');
 export const EndOfStream = factory.createIdentifier('EndOfStream');
+export const ReturnType = factory.createIdentifier('ReturnType');
 
 export const CallTxType = factory.createTypeReferenceNode(CallTx);
 export const BlockRangeType = factory.createTypeReferenceNode(BlockRange);
@@ -38,6 +39,8 @@ export const QuestionToken = factory.createToken(ts.SyntaxKind.QuestionToken);
 export const QuestionDotToken = factory.createToken(ts.SyntaxKind.QuestionDotToken);
 export const ColonToken = factory.createToken(ts.SyntaxKind.ColonToken);
 export const AsyncToken = factory.createToken(ts.SyntaxKind.AsyncKeyword);
+export const ReadonlyToken = factory.createToken(ts.SyntaxKind.ReadonlyKeyword);
+export const EqualsGreaterThanToken = factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken);
 export const Undefined = factory.createIdentifier('undefined');
 
 export function createCall(fn: ts.Expression, args?: ts.Expression[]): ts.CallExpression {
@@ -66,6 +69,10 @@ export function asRefNode(id: ts.Identifier): ts.TypeReferenceNode {
 
 export function asConst(exp: ts.Expression): ts.AsExpression {
   return factory.createAsExpression(exp, factory.createTypeReferenceNode('const'));
+}
+
+export function constObject(elements: ts.ObjectLiteralElementLike[]): ts.AsExpression {
+  return asConst(factory.createObjectLiteralExpression(elements));
 }
 
 export function prop(

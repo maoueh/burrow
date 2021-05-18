@@ -32,24 +32,20 @@ export module Addition {
         const payload = client.payload(data);
         return client.deploy(payload);
     }
-    export class Contract {
-        private client: Provider;
-        public address: string;
-        constructor(client: Provider, address: string) {
-            this.client = client;
-            this.address = address;
-        }
-        add(a: number, b: number): Promise<{
-            sum: number;
-        }> {
-            const data = encode(this.client).add(a, b);
-            return call<{
+    export const contract = (client: Provider, address: string) => ({ functions: { add(a: number, b: number): Promise<{
                 sum: number;
-            }>(this.client, this.address, data, true, (data: Uint8Array | undefined) => {
-                return decode(this.client, data).add();
-            });
-        }
-    }
+            }> {
+                const data = encode(client).add(a, b);
+                return call<{
+                    sum: number;
+                }>(client, address, data, true, (data: Uint8Array | undefined) => {
+                    return decode(client, data).add();
+                });
+            } } as const, listeners: {} as const } as const);
+    type EventRegistry = typeof events;
+    export type Event = keyof EventRegistry;
+    export type TaggedPayload<T extends Event> = ReturnType<EventRegistry[T]["tagged"]>;
+    const events = {} as const;
     export const encode = (client: Provider) => { const codec = client.contractCodec(abi); return {
         add: (a: number, b: number) => { return codec.encodeFunctionData("A5F3C23B", a, b); }
     }; };
